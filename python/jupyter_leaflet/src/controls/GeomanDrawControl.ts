@@ -1,12 +1,11 @@
 import { unpack_models, WidgetView } from '@jupyter-widgets/base';
-import { DrawEvents, GeoJSON } from 'leaflet';
+import { GeoJSON } from 'leaflet';
 import L from '../leaflet';
 import { LayerShapes } from '../definitions/leaflet-extend';
 import { LeafletControlModel, LeafletControlView } from './Control';
-import "leaflet/dist/leaflet.css";
-import "@geoman-io/leaflet-geoman-free";
-import "@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css";
-
+import 'leaflet/dist/leaflet.css';
+import '@geoman-io/leaflet-geoman-free';
+import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
 
 export class LeafletGeomanDrawControlModel extends LeafletControlModel {
   defaults() {
@@ -32,16 +31,17 @@ export class LeafletGeomanDrawControlModel extends LeafletControlModel {
     };
   }
 }
-  
+
 LeafletGeomanDrawControlModel.serializers = {
   ...LeafletControlModel.serializers,
   layer: { deserialize: unpack_models },
 };
 
-
 export class LeafletGeomanDrawControlView extends LeafletControlView {
   feature_group: GeoJSON;
-  initialize(parameters: WidgetView.IInitializeParameters<LeafletControlModel>) {
+  initialize(
+    parameters: WidgetView.IInitializeParameters<LeafletControlModel>
+  ) {
     super.initialize(parameters);
     this.map_view = this.options.map_view;
   }
@@ -55,20 +55,31 @@ export class LeafletGeomanDrawControlView extends LeafletControlView {
           return {};
         }
       },
-      pointToLayer: function(feature, latlng){
+      pointToLayer: function (feature, latlng) {
         var options;
         if (feature.properties.style.textMarker) {
-          options = {textMarker: feature.properties.style.textMarker, text: feature.properties.style.text};
+          options = {
+            textMarker: feature.properties.style.textMarker,
+            text: feature.properties.style.text,
+          };
         } else {
           options = feature.properties.options;
         }
         switch (feature.properties.type) {
-            case "marker": return new L.Marker(latlng, options);
-            case "circle": return new L.Circle(latlng, feature.properties.style.radius, feature.properties.options);
-            case "circlemarker": return new L.CircleMarker(latlng, feature.properties.options);
-            // Below might work funny sometimes? 
-            // TODO: Check
-            default: return new L.Marker(latlng, options);
+          case 'marker':
+            return new L.Marker(latlng, options);
+          case 'circle':
+            return new L.Circle(
+              latlng,
+              feature.properties.style.radius,
+              feature.properties.options
+            );
+          case 'circlemarker':
+            return new L.CircleMarker(latlng, feature.properties.options);
+          // Below might work funny sometimes?
+          // TODO: Check
+          default:
+            return new L.Marker(latlng, options);
         }
       },
     });
@@ -81,37 +92,37 @@ export class LeafletGeomanDrawControlView extends LeafletControlView {
     var drawMarker = this.model.get('marker');
     if (!Object.keys(drawMarker).length) {
       drawMarker = false;
-    } else if ( "shapeOptions" in Object.keys(drawMarker) ) {
+    } else if ('shapeOptions' in Object.keys(drawMarker)) {
       drawMarker.pathOptions = drawMarker.shapeOptions;
     }
     var drawCircleMarker = this.model.get('circlemarker');
     if (!Object.keys(drawCircleMarker).length) {
       drawCircleMarker = false;
-    } else if ( "shapeOptions" in Object.keys(drawCircleMarker) ) {
+    } else if ('shapeOptions' in Object.keys(drawCircleMarker)) {
       drawCircleMarker.pathOptions = drawCircleMarker.shapeOptions;
     }
     var drawCircle = this.model.get('circle');
     if (!Object.keys(drawCircle).length) {
       drawCircle = false;
-    } else if ( "shapeOptions" in Object.keys(drawCircle) ) {
+    } else if ('shapeOptions' in Object.keys(drawCircle)) {
       drawCircle.pathOptions = drawCircle.shapeOptions;
     }
     var drawPolyline = this.model.get('polyline');
     if (!Object.keys(drawPolyline).length) {
       drawPolyline = false;
-    } else if ( "shapeOptions" in Object.keys(drawPolyline) ) {
+    } else if ('shapeOptions' in Object.keys(drawPolyline)) {
       drawPolyline.pathOptions = drawPolyline.shapeOptions;
     }
     var drawRectangle = this.model.get('rectangle');
     if (!Object.keys(drawRectangle).length) {
       drawRectangle = false;
-    } else if ( "shapeOptions" in Object.keys(drawRectangle) ) {
+    } else if ('shapeOptions' in Object.keys(drawRectangle)) {
       drawRectangle.pathOptions = drawRectangle.shapeOptions;
     }
     var drawPolygon = this.model.get('polygon');
     if (!Object.keys(drawPolygon).length) {
       drawPolygon = false;
-    } else if ( "shapeOptions" in Object.keys(drawPolygon) ) {
+    } else if ('shapeOptions' in Object.keys(drawPolygon)) {
       drawPolygon.pathOptions = drawPolygon.shapeOptions;
     }
     var drawText = this.model.get('text');
@@ -145,115 +156,137 @@ export class LeafletGeomanDrawControlView extends LeafletControlView {
 
     this.setMode();
 
-    this.map_view.obj.on('pm:create', (e: {
-      shape: L.PM.SUPPORTED_SHAPES;
-      layer: LayerShapes;
-    }) => {
-      var layer = e.layer;
-      this.send({
-        event: 'pm:create',
-        geo_json: this.layer_to_json(layer),
-      });
-      this.feature_group.addLayer(layer);
-      this.layers_to_data();
-      console.log("CREATED")
-      this.model.save_changes();
-    });
-    this.map_view.obj.on('pm:remove', (e: {
-      shape: L.PM.SUPPORTED_SHAPES;
-      layer: LayerShapes;
-    }) => {
-      var eventLayer = e.layer;
-      this.feature_group.removeLayer(eventLayer);
-      this.send({
-          event: "pm:remove",
+    this.map_view.obj.on(
+      'pm:create',
+      (e: {
+        // Note: all ts-ignore comments are due to the type redefinitions by geoman
+        // not always being correctly picked up by editors. Everything works on ts compile
+        // @ts-ignore
+        shape: L.PM.SUPPORTED_SHAPES;
+        layer: LayerShapes;
+      }) => {
+        var layer = e.layer;
+        this.send({
+          event: 'pm:create',
+          geo_json: this.layer_to_json(layer),
+        });
+        this.feature_group.addLayer(layer);
+        this.layers_to_data();
+        console.log('CREATED');
+        this.model.save_changes();
+      }
+    );
+    this.map_view.obj.on(
+      'pm:remove',
+      (e: {
+        // @ts-ignore
+        shape: L.PM.SUPPORTED_SHAPES;
+        layer: LayerShapes;
+      }) => {
+        var eventLayer = e.layer;
+        this.feature_group.removeLayer(eventLayer);
+        this.send({
+          event: 'pm:remove',
           geo_json: this.layer_to_json(eventLayer),
-      })
-      this.layers_to_data();
-    });
-    this.map_view.obj.on('pm:cut', (e: {
-      layer: LayerShapes;
-      originalLayer: L.Layer;
-      shape: L.PM.SUPPORTED_SHAPES;
-    }) => {
+        });
+        this.layers_to_data();
+      }
+    );
+    this.map_view.obj.on(
+      'pm:cut',
+      (e: {
+        layer: LayerShapes;
+        originalLayer: L.Layer;
+        // @ts-ignore
+        shape: L.PM.SUPPORTED_SHAPES;
+      }) => {
+        var eventLayer = e.layer;
+        // since cut returns original layer and new layer, we treat it differently
+        var geo_json = [];
+        this.feature_group.eachLayer((layer) => {
+          if (layer._leaflet_id == e.originalLayer._leaflet_id) {
+            this.feature_group.removeLayer(layer);
+          } else {
+            geo_json.push(this.layer_to_json(layer));
+          }
+        });
+        this.feature_group.addLayer(eventLayer);
+        geo_json.push(this.layer_to_json(eventLayer));
+        this.send({
+          event: 'pm:cut',
+          geo_json: geo_json,
+        });
+        this.layers_to_data();
+      }
+    );
+    this.map_view.obj.on('pm:rotateend', (e: { layer: LayerShapes }) => {
       var eventLayer = e.layer;
-      // since cut returns original layer and new layer, we treat it differently
-      var geo_json = [];
-      this.feature_group.eachLayer((layer) => {
-        if (layer._leaflet_id == e.originalLayer._leaflet_id){
-          this.feature_group.removeLayer(layer);
-        } else {
-          geo_json.push(this.layer_to_json(layer));
-        }
-      });
-      this.feature_group.addLayer(eventLayer);
-      geo_json.push(this.layer_to_json(eventLayer));
-      this.send({
-        event: "pm:cut",
-        geo_json: geo_json,
-      });
-      this.layers_to_data();
-    });
-    this.map_view.obj.on('pm:rotateend', (e: {layer: LayerShapes}) => {
-      var eventLayer = e.layer;
-      this.event_to_json("pm:rotateend", eventLayer);
+      this.event_to_json('pm:rotateend', eventLayer);
       this.layers_to_data();
     });
     // add listeners for syncing modes
-    this.map_view.obj.on('pm:globaldrawmodetoggled', (e: {
-      enabled: boolean,
-      shape: L.PM.SUPPORTED_SHAPES
-    }) => {
-      if (e.enabled && this.model.get('current_mode') != null && this.model.get('current_mode').split(':')[0] != 'draw') {
-        this.model.set('current_mode', 'draw:' + e.shape);
-        this.setMode();
+    this.map_view.obj.on(
+      'pm:globaldrawmodetoggled',
+      (e: {
+        enabled: boolean;
+        // @ts-ignore
+        shape: L.PM.SUPPORTED_SHAPES;
+      }) => {
+        if (
+          e.enabled &&
+          this.model.get('current_mode') != null &&
+          this.model.get('current_mode').split(':')[0] != 'draw'
+        ) {
+          this.model.set('current_mode', 'draw:' + e.shape);
+          this.setMode();
+        }
       }
-    });
-    this.map_view.obj.on('pm:globaleditmodetoggled', (e: {
-      enabled: boolean;
-      map: L.Map;
-    }) => {
-      if (e.enabled && this.model.get('current_mode') != 'edit') {
-        this.model.set('current_mode', 'edit');
-        this.setMode();
+    );
+    this.map_view.obj.on(
+      'pm:globaleditmodetoggled',
+      (e: { enabled: boolean; map: L.Map }) => {
+        if (e.enabled && this.model.get('current_mode') != 'edit') {
+          this.model.set('current_mode', 'edit');
+          this.setMode();
+        }
       }
-    });
-    this.map_view.obj.on('pm:globaldragmodetoggled', (e: {
-      enabled: boolean;
-      map: L.Map;
-    }) => {
-      if (e.enabled && this.model.get('current_mode') != 'drag') {
-        this.model.set('current_mode', 'drag');
-        this.setMode();
+    );
+    this.map_view.obj.on(
+      'pm:globaldragmodetoggled',
+      (e: { enabled: boolean; map: L.Map }) => {
+        if (e.enabled && this.model.get('current_mode') != 'drag') {
+          this.model.set('current_mode', 'drag');
+          this.setMode();
+        }
       }
-    });
-    this.map_view.obj.on('pm:globalremovalmodetoggled', (e: {
-      enabled: boolean;
-      map: L.Map;
-    }) => {
-      if (e.enabled && this.model.get('current_mode') != 'remove') {
-        this.model.set('current_mode', 'remove');
-        this.setMode();
+    );
+    this.map_view.obj.on(
+      'pm:globalremovalmodetoggled',
+      (e: { enabled: boolean; map: L.Map }) => {
+        if (e.enabled && this.model.get('current_mode') != 'remove') {
+          this.model.set('current_mode', 'remove');
+          this.setMode();
+        }
       }
-    });
-    this.map_view.obj.on('pm:globalcutmodetoggled', (e: {
-      enabled: boolean;
-      map: L.Map;
-    }) => {
-      if (e.enabled && this.model.get('current_mode') != 'cut') {
-        this.model.set('current_mode', 'cut');
-        this.setMode();
+    );
+    this.map_view.obj.on(
+      'pm:globalcutmodetoggled',
+      (e: { enabled: boolean; map: L.Map }) => {
+        if (e.enabled && this.model.get('current_mode') != 'cut') {
+          this.model.set('current_mode', 'cut');
+          this.setMode();
+        }
       }
-    });
-    this.map_view.obj.on('pm:globalrotatemodetoggled', (e: {
-      enabled: boolean;
-      map: L.Map;
-    }) => {
-      if (e.enabled && this.model.get('current_mode') != 'rotate') {
-        this.model.set('current_mode', 'rotate');
-        this.setMode();
+    );
+    this.map_view.obj.on(
+      'pm:globalrotatemodetoggled',
+      (e: { enabled: boolean; map: L.Map }) => {
+        if (e.enabled && this.model.get('current_mode') != 'rotate') {
+          this.model.set('current_mode', 'rotate');
+          this.setMode();
+        }
       }
-    });
+    );
     this.model.on('change:current_mode', this.setMode.bind(this));
     this.model.on('msg:custom', this.handle_message.bind(this));
     this.model.on('change:data', this.data_to_layers.bind(this));
@@ -271,43 +304,49 @@ export class LeafletGeomanDrawControlView extends LeafletControlView {
   }
 
   setMode() {
-    var mode = this.model.get("current_mode");
-    console.log("setting mode", mode);
+    var mode = this.model.get('current_mode');
+    console.log('setting mode', mode);
     if (mode == null) {
-      const currentShape = this.map_view.obj.pm.Draw.getActiveShape()
-      if ( currentShape ) {
+      const currentShape = this.map_view.obj.pm.Draw.getActiveShape();
+      if (currentShape) {
         this.map_view.obj.pm.disableDraw(currentShape);
       }
-    }else if (mode.split(":").length > 1) {
-      mode = mode.split(":")[1];
+    } else if (mode.split(':').length > 1) {
+      mode = mode.split(':')[1];
       this.map_view.obj.pm.enableDraw(mode, this.model.get(mode.toLowerCase()));
-    } else if (mode == "edit") {
+    } else if (mode == 'edit') {
       this.map_view.obj.pm.enableGlobalEditMode();
-    } else if (mode == "drag") {
+    } else if (mode == 'drag') {
       this.map_view.obj.pm.enableGlobalDragMode();
-    } else if (mode == "remove") {
+    } else if (mode == 'remove') {
       this.map_view.obj.pm.enableGlobalRemovalMode();
-    } else if (mode == "cut") {
-      this.map_view.obj.pm.enableDraw("Cut");
-    } else if (mode == "rotate") {
+    } else if (mode == 'cut') {
+      this.map_view.obj.pm.enableDraw('Cut');
+    } else if (mode == 'rotate') {
       this.map_view.obj.pm.enableGlobalRotateMode();
     }
   }
 
   properties_type(layer: L.Layer) {
     switch (layer.constructor) {
-      case L.Rectangle: return "rectangle";
-      case L.Circle: return "circle";
-      case L.CircleMarker: return "circlemarker";
-      case L.Polygon: return "polygon";
-      case L.Polyline: return "polyline";
-      case L.Marker: return "marker";
+      case L.Rectangle:
+        return 'rectangle';
+      case L.Circle:
+        return 'circle';
+      case L.CircleMarker:
+        return 'circlemarker';
+      case L.Polygon:
+        return 'polygon';
+      case L.Polyline:
+        return 'polyline';
+      case L.Marker:
+        return 'marker';
     }
   }
 
   layer_to_json(layer: LayerShapes | L.Layer) {
     var geo_json = layer.toGeoJSON();
-    if ( geo_json.properties == undefined ) {
+    if (geo_json.properties == undefined) {
       geo_json.properties = {};
     }
     geo_json.properties.style = layer.options;
@@ -318,7 +357,7 @@ export class LeafletGeomanDrawControlView extends LeafletControlView {
   event_to_json(eventName: string, eventLayer: LayerShapes | L.Layer) {
     var geo_json: GeoJSON[] = [];
     this.feature_group.eachLayer((layer) => {
-      if (layer._leaflet_id == eventLayer._leaflet_id){
+      if (layer._leaflet_id == eventLayer._leaflet_id) {
         geo_json.push(this.layer_to_json(eventLayer));
       } else {
         geo_json.push(this.layer_to_json(layer));
@@ -337,36 +376,34 @@ export class LeafletGeomanDrawControlView extends LeafletControlView {
     // We add event listeners here, since these need to be added on a
     // per-layer basis.
     this.feature_group.eachLayer((layer) => {
-      layer.on('pm:vertexadded', (e: {
-        layer: L.Layer;
-      }) => {
+      layer.on('pm:vertexadded', (e: { layer: L.Layer }) => {
         var eventLayer = e.layer;
-        this.event_to_json("pm:vertexadded", eventLayer);
+        this.event_to_json('pm:vertexadded', eventLayer);
         this.layers_to_data();
       });
       layer.on('pm:vertexremoved', (e) => {
         var eventLayer = e.layer;
-        this.event_to_json("pm:vertexremoved", eventLayer);
+        this.event_to_json('pm:vertexremoved', eventLayer);
         this.layers_to_data();
       });
       layer.on('pm:markerdragend', (e) => {
         var eventLayer = e.layer;
-        this.event_to_json("pm:vertexdrag", eventLayer);
+        this.event_to_json('pm:vertexdrag', eventLayer);
         this.layers_to_data();
       });
       layer.on('pm:dragend', (e) => {
         var eventLayer = e.layer;
-        this.event_to_json("pm:drag", eventLayer);
+        this.event_to_json('pm:drag', eventLayer);
         this.layers_to_data();
       });
       layer.on('pm:textblur', (e) => {
         var eventLayer = e.layer;
-        this.event_to_json("pm:textchange", eventLayer);
+        this.event_to_json('pm:textchange', eventLayer);
         this.layers_to_data();
       });
     });
   }
-  
+
   layers_to_data() {
     let newData: GeoJSON[] = [];
     this.feature_group.eachLayer((layer) => {
@@ -374,9 +411,9 @@ export class LeafletGeomanDrawControlView extends LeafletControlView {
         this.feature_group.removeLayer(layer);
       } else {
         const geoJson = layer.toGeoJSON();
-        if ( geoJson.properties == undefined ) {
+        if (geoJson.properties == undefined) {
           geoJson.properties = {};
-        }  
+        }
         // Sanitize layer options for serialization via `structuredClone`:
         // https://web.dev/structured-clone/#features-and-limitations
         const sanitizedLayerOptions = JSON.parse(JSON.stringify(layer.options));
@@ -385,22 +422,22 @@ export class LeafletGeomanDrawControlView extends LeafletControlView {
         newData.push(geoJson);
       }
     });
-    console.log("data changed, new data:", newData);
+    console.log('data changed, new data:', newData);
     this.model.set('data', newData);
     this.model.save_changes();
   }
 
-  handle_message(content: {msg: string}) {
-    switch(content.msg) {
+  handle_message(content: { msg: string }) {
+    switch (content.msg) {
       case 'clear': {
         this.feature_group.eachLayer((layer) => {
           this.feature_group.removeLayer(layer);
         });
         break;
       }
-      case 'clear_polygons':{
+      case 'clear_polygons': {
         this.feature_group.eachLayer((layer) => {
-          if(layer instanceof L.Polygon && !(layer instanceof L.Rectangle)) {
+          if (layer instanceof L.Polygon && !(layer instanceof L.Rectangle)) {
             this.feature_group.removeLayer(layer);
           }
         });
@@ -440,7 +477,11 @@ export class LeafletGeomanDrawControlView extends LeafletControlView {
       }
       case 'clear_markers': {
         this.feature_group.eachLayer((layer) => {
-          if ((layer instanceof L.Marker && !layer.options.textMarker) || layer instanceof L.CircleMarker) {
+          if (
+            // @ts-ignore
+            (layer instanceof L.Marker && !layer.options.textMarker) ||
+            layer instanceof L.CircleMarker
+          ) {
             this.feature_group.removeLayer(layer);
           }
         });
@@ -448,6 +489,7 @@ export class LeafletGeomanDrawControlView extends LeafletControlView {
       }
       case 'clear_text': {
         this.feature_group.eachLayer((layer) => {
+          // @ts-ignore
           if (layer instanceof L.Marker && layer.options.textMarker) {
             this.feature_group.removeLayer(layer);
           }
@@ -455,6 +497,6 @@ export class LeafletGeomanDrawControlView extends LeafletControlView {
         break;
       }
     }
-  this.layers_to_data();
+    this.layers_to_data();
   }
 }

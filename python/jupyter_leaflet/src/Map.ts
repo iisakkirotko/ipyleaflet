@@ -20,7 +20,7 @@ import {
   LeafletControlView,
   LeafletLayerModel,
   LeafletLayerView,
-  LeafletGeomanDrawControlView 
+  LeafletGeomanDrawControlView,
 } from './jupyter-leaflet';
 import L from './leaflet';
 import { getProjection } from './projections';
