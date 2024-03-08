@@ -93,7 +93,7 @@ export class LeafletGeomanDrawControlView extends LeafletControlView {
       drawMarker = false;
     } else {
       // For backwards compatibility
-      if ("shapeOptions" in drawMarker) {
+      if ('shapeOptions' in drawMarker) {
         drawMarker.markerOptions = drawMarker.shapeOptions;
         delete drawMarker.shapeOptions;
       }
@@ -104,7 +104,7 @@ export class LeafletGeomanDrawControlView extends LeafletControlView {
     if (!Object.keys(drawCircleMarker).length) {
       drawCircleMarker = false;
     } else {
-      if ("shapeOptions" in drawCircleMarker) {
+      if ('shapeOptions' in drawCircleMarker) {
         drawCircleMarker.pathOptions = drawCircleMarker.shapeOptions;
         delete drawCircleMarker.shapeOptions;
       }
@@ -115,7 +115,7 @@ export class LeafletGeomanDrawControlView extends LeafletControlView {
     if (!Object.keys(drawCircle).length) {
       drawCircle = false;
     } else {
-      if ("shapeOptions" in drawCircle) {
+      if ('shapeOptions' in drawCircle) {
         drawCircle.pathOptions = drawCircle.shapeOptions;
         delete drawCircle.shapeOptions;
       }
@@ -126,7 +126,7 @@ export class LeafletGeomanDrawControlView extends LeafletControlView {
     if (!Object.keys(drawPolyline).length) {
       drawPolyline = false;
     } else {
-      if ("shapeOptions" in drawPolyline) {
+      if ('shapeOptions' in drawPolyline) {
         drawPolyline.pathOptions = drawPolyline.shapeOptions;
         delete drawPolyline.shapeOptions;
       }
@@ -137,7 +137,7 @@ export class LeafletGeomanDrawControlView extends LeafletControlView {
     if (!Object.keys(drawRectangle).length) {
       drawRectangle = false;
     } else {
-      if ("shapeOptions" in drawRectangle) {
+      if ('shapeOptions' in drawRectangle) {
         drawRectangle.pathOptions = drawRectangle.shapeOptions;
         delete drawRectangle.shapeOptions;
       }
@@ -148,7 +148,7 @@ export class LeafletGeomanDrawControlView extends LeafletControlView {
     if (!Object.keys(drawPolygon).length) {
       drawPolygon = false;
     } else {
-      if ("shapeOptions" in drawPolygon) {
+      if ('shapeOptions' in drawPolygon) {
         drawPolygon.pathOptions = drawPolygon.shapeOptions;
         delete drawPolygon.shapeOptions;
       }
