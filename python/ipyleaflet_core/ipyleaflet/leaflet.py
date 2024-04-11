@@ -2192,36 +2192,6 @@ class DrawControlBase(Control):
         self.send({"msg": "clear_markers"})
 
 
-class DrawControl(DrawControlBase):
-    """DrawControl class.
-
-    Drawing tools for drawing on the map.
-    """
-
-    _view_name = Unicode("LeafletDrawControlView").tag(sync=True)
-    _model_name = Unicode("LeafletDrawControlModel").tag(sync=True)
-
-    # Enable each of the following drawing by giving them a non empty dict of options
-    # You can add Leaflet style options in the shapeOptions sub-dict
-    # See https://github.com/Leaflet/Leaflet.draw#polylineoptions and
-    # https://github.com/Leaflet/Leaflet.draw#polygonoptions
-    circlemarker = Dict({"shapeOptions": {}}).tag(sync=True)
-
-    last_draw = Dict({"type": "Feature", "geometry": None})
-    last_action = Unicode()
-
-    def __init__(self, **kwargs):
-        super(DrawControl, self).__init__(**kwargs)
-        self.on_msg(self._handle_leaflet_event)
-
-    def _handle_leaflet_event(self, _, content, buffers):
-        if content.get("event", "").startswith("draw"):
-            event, action = content.get("event").split(":")
-            self.last_draw = content.get("geo_json")
-            self.last_action = action
-            self._draw_callbacks(self, action=action, geo_json=self.last_draw)
-
-
 class GeomanDrawControl(DrawControlBase):
     """GeomanDrawControl class.
 
@@ -2284,10 +2254,10 @@ class GeomanDrawControl(DrawControlBase):
         self.send({'msg': 'clear_text'})
 
 
-class DrawControlCompatibility(DrawControlBase):
+class DrawControl(DrawControlBase):
     """DrawControl class.
 
-    Python side compatibility layer for old DrawControls, using the new Geoman front-end but old Python API.
+    DrawControl is deprecated and will be removed in a future release. Please use GeomanDrawControl instead.
     """
     
     _view_name = Unicode("LeafletGeomanDrawControlView").tag(sync=True)
@@ -2302,7 +2272,7 @@ class DrawControlCompatibility(DrawControlBase):
     last_action = Unicode()
 
     def __init__(self, **kwargs):
-        super(DrawControlCompatibility, self).__init__(**kwargs)
+        super(DrawControl, self).__init__(**kwargs)
         self.on_msg(self._handle_leaflet_event)
 
     def _handle_leaflet_event(self, _, content, buffers):
@@ -2319,6 +2289,10 @@ class DrawControlCompatibility(DrawControlBase):
             self.last_draw = geo_json
             self.last_action = action
             self._draw_callbacks(self, action=action, geo_json=self.last_draw)
+
+
+# Compatibility layer
+DrawControlCompatibility = DrawControl
 
 
 class ZoomControl(Control):
